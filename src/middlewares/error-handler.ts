@@ -1,8 +1,11 @@
 import type { ErrorRequestHandler } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  const { code = 500, message } = err;
-  res.status(code).send({ message: code === 500 ? 'Server error' : message });
+  const { code = StatusCodes.INTERNAL_SERVER_ERROR, message } = err;
+  res
+    .status(code)
+    .send({ message: code === StatusCodes.INTERNAL_SERVER_ERROR ? 'Server error' : message });
   next();
 };
 

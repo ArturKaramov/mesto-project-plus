@@ -1,6 +1,6 @@
 import express, { Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { IRequestWithUser } from './utils/types/types';
+import { IRequestWithUser } from './utils/types';
 import errorHandler from './middlewares/error-handler';
 import userRouter from './routes/user';
 import cardRouter from './routes/card';
