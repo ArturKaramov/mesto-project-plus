@@ -3,8 +3,8 @@ import mongoose, { Schema } from 'mongoose';
 interface ICard {
   name: string;
   link: string;
-  owner: Schema.Types.ObjectId | '';
-  likes: Schema.Types.ObjectId[] | [];
+  owner: Schema.Types.ObjectId;
+  likes: Schema.Types.ObjectId[];
   createdAt: Date;
 }
 
@@ -21,13 +21,17 @@ const cardSchema = new Schema<ICard>({
   },
   owner: {
     type: Schema.Types.ObjectId,
+    ref: 'user',
     required: true,
   },
   likes: {
     type: [Schema.Types.ObjectId],
+    ref: 'user',
+    default: [],
   },
   createdAt: {
     type: Date,
+    default: Date.now(),
   },
 });
 
