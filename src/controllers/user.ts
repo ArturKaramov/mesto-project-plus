@@ -24,10 +24,10 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
     .then((obj) => res.send(obj))
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'ValidationError') {
-        throw new ErrorWithCode(StatusCodes.BAD_REQUEST, VALIDATION_ERROR_MESSAGE);
+        next(new ErrorWithCode(StatusCodes.BAD_REQUEST, VALIDATION_ERROR_MESSAGE));
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 export const getUser = (req: Request, res: Response, next: NextFunction) => {
@@ -39,11 +39,10 @@ export const getUser = (req: Request, res: Response, next: NextFunction) => {
     .then((obj) => res.send(obj))
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'CastError') {
-        throw new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE);
+        next(new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE));
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
 const updateUser = (
@@ -59,14 +58,13 @@ const updateUser = (
     .catch((err) => {
       if (err instanceof mongoose.Error) {
         if (err.name === 'ValidationError') {
-          throw new ErrorWithCode(StatusCodes.BAD_REQUEST, VALIDATION_ERROR_MESSAGE);
+          next(new ErrorWithCode(StatusCodes.BAD_REQUEST, VALIDATION_ERROR_MESSAGE));
         } else if (err.name === 'CastError') {
-          throw new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE);
+          next(new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE));
         }
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
 export const updateNameAndAbout = (req: IRequestWithUser, res: Response, next: NextFunction) => {

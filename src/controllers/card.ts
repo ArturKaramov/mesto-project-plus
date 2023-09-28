@@ -27,11 +27,10 @@ export const createCard = (req: IRequestWithUser, res: Response, next: NextFunct
     .then((obj) => res.send(obj))
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'ValidationError') {
-        throw new ErrorWithCode(StatusCodes.BAD_REQUEST, VALIDATION_ERROR_MESSAGE);
+        next(new ErrorWithCode(StatusCodes.BAD_REQUEST, VALIDATION_ERROR_MESSAGE));
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
 export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
@@ -42,43 +41,35 @@ export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
     .then(() => res.send({ message: 'Карточка удалена' }))
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'CastError') {
-        throw new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE);
+        next(new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE));
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
-export const putLike = (req: Request, res: Response, next: NextFunction) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.body.user._id } },
-    { new: true },
-  )
+const updateCard = (
+  cardId: string,
+  params: { [key: string]: { [key: string]: string | undefined } },
+  res: Response,
+  next: NextFunction,
+) => {
+  Card.findByIdAndUpdate(cardId, params, { new: true })
     .orFail(() => {
       throw new ErrorWithCode(StatusCodes.NOT_FOUND, NOT_FOUND_CARD_MESSAGE);
     })
     .then((obj) => res.send(obj))
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'CastError') {
-        throw new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE);
+        next(new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE));
       }
       next(err);
-    })
-    .catch(next);
+    });
 };
 
-export const deleteLike = (req: Request, res: Response, next: NextFunction) => {
-  Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.body.user._id } }, { new: true })
-    .orFail(() => {
-      throw new ErrorWithCode(StatusCodes.NOT_FOUND, NOT_FOUND_CARD_MESSAGE);
-    })
-    .then((obj) => res.send(obj))
-    .catch((err) => {
-      if (err instanceof mongoose.Error && err.name === 'CastError') {
-        throw new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE);
-      }
-      next(err);
-    })
-    .catch(next);
+export const putLike = (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  updateCard(req.params.cardId, { $addToSet: { likes: req.user?.id } }, res, next);
+};
+
+export const deleteLike = (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  updateCard(req.params.cardId, { $pull: { likes: req.user?.id } }, res, next);
 };
