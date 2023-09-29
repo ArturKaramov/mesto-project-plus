@@ -16,3 +16,7 @@ node_modules
 
 # Typescript build result
 dist
+
+# dotenv environment variables file
+.env
+.env.test

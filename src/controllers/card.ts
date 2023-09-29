@@ -43,7 +43,7 @@ export const deleteCard = (req: IRequestWithUser, res: Response, next: NextFunct
       if (JSON.stringify(data.owner) !== JSON.stringify(req.user?._id)) {
         next(new ErrorWithCode(StatusCodes.FORBIDDEN, 'Not Enough Rights'));
       } else {
-        Card.deleteOne({ _id: data._id })
+        data.deleteOne()
           .then(() => res.send({ message: 'Card Deleted' }))
           .catch(next);
       }

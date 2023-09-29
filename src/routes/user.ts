@@ -58,7 +58,7 @@ router.get(
   USER_URL,
   celebrate({
     params: Joi.object().keys({
-      userId: Joi.string().alphanum().length(24),
+      userId: Joi.string().required().hex(),
     }),
   }),
   getUser,
@@ -68,8 +68,8 @@ router.patch(
   USER_MINE_URL,
   celebrate({
     body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(200),
+      name: Joi.string().required().min(2).max(30),
+      about: Joi.string().required().min(2).max(200),
     }),
   }),
   updateNameAndAbout,
@@ -79,7 +79,9 @@ router.patch(
   USER_MINE_AVATAR_URL,
   celebrate({
     body: Joi.object().keys({
-      avatar: Joi.string(),
+      avatar: Joi.string().required().pattern(
+        /(http[s]?:\/\/)([www.]?[A-Za-z0-9-]+)(\.[A-Za-z])(\/[A-Za-z0-9-]+)?/,
+      ),
     }),
   }),
   updateAvatar,
