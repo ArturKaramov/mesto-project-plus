@@ -22,28 +22,38 @@ export const createCard = (req: IRequestWithUser, res: Response, next: NextFunct
   Card.create({
     name,
     link,
-    owner: req.user?.id,
+    owner: req.user?._id,
   })
     .then((obj) => res.send(obj))
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'ValidationError') {
         next(new ErrorWithCode(StatusCodes.BAD_REQUEST, VALIDATION_ERROR_MESSAGE));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
-export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
-  Card.findByIdAndDelete({ _id: req.params.cardId })
+export const deleteCard = (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  Card.findById({ _id: req.params.cardId })
     .orFail(() => {
       throw new ErrorWithCode(StatusCodes.NOT_FOUND, NOT_FOUND_CARD_MESSAGE);
     })
-    .then(() => res.send({ message: 'Карточка удалена' }))
+    .then((data) => {
+      if (JSON.stringify(data.owner) !== JSON.stringify(req.user?._id)) {
+        next(new ErrorWithCode(StatusCodes.FORBIDDEN, 'Not Enough Rights'));
+      } else {
+        Card.deleteOne({ _id: data._id })
+          .then(() => res.send({ message: 'Card Deleted' }))
+          .catch(next);
+      }
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'CastError') {
         next(new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -61,15 +71,16 @@ const updateCard = (
     .catch((err) => {
       if (err instanceof mongoose.Error && err.name === 'CastError') {
         next(new ErrorWithCode(StatusCodes.BAD_REQUEST, CAST_ERROR_MESSAGE));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
 export const putLike = (req: IRequestWithUser, res: Response, next: NextFunction) => {
-  updateCard(req.params.cardId, { $addToSet: { likes: req.user?.id } }, res, next);
+  updateCard(req.params.cardId, { $addToSet: { likes: req.user?._id } }, res, next);
 };
 
 export const deleteLike = (req: IRequestWithUser, res: Response, next: NextFunction) => {
-  updateCard(req.params.cardId, { $pull: { likes: req.user?.id } }, res, next);
+  updateCard(req.params.cardId, { $pull: { likes: req.user?._id } }, res, next);
 };
