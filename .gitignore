@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+*.json
 npm-debug.log*
 
 # Dependency directory
@@ -17,5 +18,5 @@ node_modules
 # Typescript build result
 dist
 
-# ignore json reports generate locally in the testdata reports
-**bundles_*.json
+#ignore json
+.*.json
