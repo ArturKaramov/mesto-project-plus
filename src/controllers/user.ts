@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import config from '../../config';
 import ErrorWithCode from '../utils/classes/ErrorWithCode';
 import User from '../models/user';
 import {
@@ -11,13 +12,12 @@ import {
   VALIDATION_ERROR_MESSAGE,
 } from '../utils/error-messages';
 import { IRequestWithUser } from '../utils/types';
-import JWT_SECRET from '../utils/env';
 
 export const login = (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, config.JWT_SECRET, { expiresIn: '7d' });
       res.cookie('token', `Bearer ${token}`, { httpOnly: true });
       res.send({ message: 'Successfully Logged In' });
     })
@@ -64,8 +64,8 @@ export const getUsers = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
-export const getUser = (req: Request, res: Response, next: NextFunction) => {
-  User.findById(req.params.userId)
+const getUserById = (id: string | undefined, res: Response, next: NextFunction) => {
+  User.findById({ _id: id })
     .orFail(() => {
       throw new ErrorWithCode(StatusCodes.NOT_FOUND, NOT_FOUND_USER_MESSAGE);
     })
@@ -77,6 +77,14 @@ export const getUser = (req: Request, res: Response, next: NextFunction) => {
         next(err);
       }
     });
+};
+
+export const getUser = (req: Request, res: Response, next: NextFunction) => {
+  getUserById(req.params.userId, res, next);
+};
+
+export const getMe = (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  getUserById(req.user?._id, res, next);
 };
 
 const updateUser = (
@@ -105,10 +113,4 @@ export const updateNameAndAbout = (req: IRequestWithUser, res: Response, next: N
 export const updateAvatar = (req: IRequestWithUser, res: Response, next: NextFunction) => {
   const { avatar } = req.body;
   updateUser(req.user?._id, res, next, { avatar });
-};
-
-export const getMe = (req: IRequestWithUser, res: Response, next: NextFunction) => {
-  User.findById(req.user)
-    .then((user) => res.send(user))
-    .catch(next);
 };

@@ -2,16 +2,15 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { StatusCodes } from 'http-status-codes';
 import { errors } from 'celebrate';
+import config from '../config';
 import ErrorWithCode from './utils/classes/ErrorWithCode';
 import errorHandler from './middlewares/error-handler';
 import rootRouter from './routes';
 import { requestLogger, errorLogger } from './middlewares/logger';
 
-const { PORT = 3000 } = process.env;
-
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1/mesto');
+mongoose.connect(config.DB_PORT);
 
 app.use(express.json());
 
@@ -29,4 +28,4 @@ app.use(errorHandler);
 
 app.use(errorLogger);
 
-app.listen(PORT);
+app.listen(config.PORT);

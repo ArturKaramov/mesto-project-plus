@@ -1,9 +1,9 @@
 import { NextFunction, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
+import config from '../../config';
 import ErrorWithCode from '../utils/classes/ErrorWithCode';
 import { UNAUTHORIZED_MESSAGE } from '../utils/error-messages';
-import JWT_SECRET from '../utils/env';
 import { IRequestWithPayload } from '../utils/types';
 
 export default (req: IRequestWithPayload, res: Response, next: NextFunction) => {
@@ -14,7 +14,7 @@ export default (req: IRequestWithPayload, res: Response, next: NextFunction) => 
     const token = authorization.replace('Bearer ', '');
     let payload;
     try {
-      payload = jwt.verify(token, JWT_SECRET);
+      payload = jwt.verify(token, config.JWT_SECRET);
     } catch (err) {
       next(new ErrorWithCode(StatusCodes.UNAUTHORIZED, UNAUTHORIZED_MESSAGE));
     }

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { celebrate, Joi } from 'celebrate';
+import { cardValidation, cardIdValidation } from '../validation/card';
 import {
   getCards, createCard, deleteCard, putLike, deleteLike,
 } from '../controllers/card';
@@ -14,44 +14,25 @@ router.get(CARDS_ALL_URL, getCards);
 
 router.post(
   CARDS_ALL_URL,
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().required().min(2).max(30),
-      link: Joi.string()
-        .required()
-        .pattern(/(http[s]?:\/\/)([www.]?[A-Za-z0-9-]+)(\.[A-Za-z])(\/[A-Za-z0-9-]+)?/),
-    }),
-  }),
+  cardValidation,
   createCard,
 );
 
 router.delete(
   CARD_URL,
-  celebrate({
-    params: Joi.object().keys({
-      cardId: Joi.string().alphanum().length(24),
-    }),
-  }),
+  cardIdValidation,
   deleteCard,
 );
 
 router.put(
   CARD_LIKES_URL,
-  celebrate({
-    params: Joi.object().keys({
-      cardId: Joi.string().alphanum().length(24),
-    }),
-  }),
+  cardIdValidation,
   putLike,
 );
 
 router.delete(
   CARD_LIKES_URL,
-  celebrate({
-    params: Joi.object().keys({
-      cardId: Joi.string().alphanum().length(24),
-    }),
-  }),
+  cardIdValidation,
   deleteLike,
 );
 

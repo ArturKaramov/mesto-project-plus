@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import { celebrate, Joi } from 'celebrate';
+import {
+  loginValidation, registerValidation, userIdValidation, userUpdateValidation, avatarUpdate,
+} from '../validation/user';
 import {
   createUser,
   getUser,
@@ -23,28 +25,13 @@ const router = Router();
 
 router.post(
   LOGIN_URL,
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
+  loginValidation,
   login,
 );
 
 router.post(
   REGISTER_URL,
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(200),
-      avatar: Joi.string().pattern(
-        /(http[s]?:\/\/)([www.]?[A-Za-z0-9-]+)(\.[A-Za-z])(\/[A-Za-z0-9-]+)?/,
-      ),
-    }),
-  }),
+  registerValidation,
   createUser,
 );
 
@@ -56,34 +43,19 @@ router.get(USER_MINE_URL, getMe);
 
 router.get(
   USER_URL,
-  celebrate({
-    params: Joi.object().keys({
-      userId: Joi.string().required().hex(),
-    }),
-  }),
+  userIdValidation,
   getUser,
 );
 
 router.patch(
   USER_MINE_URL,
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().required().min(2).max(30),
-      about: Joi.string().required().min(2).max(200),
-    }),
-  }),
+  userUpdateValidation,
   updateNameAndAbout,
 );
 
 router.patch(
   USER_MINE_AVATAR_URL,
-  celebrate({
-    body: Joi.object().keys({
-      avatar: Joi.string().required().pattern(
-        /(http[s]?:\/\/)([www.]?[A-Za-z0-9-]+)(\.[A-Za-z])(\/[A-Za-z0-9-]+)?/,
-      ),
-    }),
-  }),
+  avatarUpdate,
   updateAvatar,
 );
 
