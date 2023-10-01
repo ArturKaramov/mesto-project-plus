@@ -13,7 +13,7 @@ export const registerValidation = celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(200),
-    avatar: Joi.string().regex(
+    avatar: Joi.string().pattern(
       /(http[s]?:\/\/)([www.]?[A-Za-z0-9-]+)(\.[A-Za-z])(\/[A-Za-z0-9-]+)?/,
     ),
   }),
@@ -34,7 +34,7 @@ export const userUpdateValidation = celebrate({
 
 export const avatarUpdate = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().regex(
+    avatar: Joi.string().required().pattern(
       /(http[s]?:\/\/)([www.]?[A-Za-z0-9-]+)(\.[A-Za-z])(\/[A-Za-z0-9-]+)?/,
     ),
   }),
